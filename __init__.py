@@ -186,19 +186,9 @@ def show_singlemode():
 
     heater_status = cbpi.cache.get("actors").get(heater_of_kettle).state
     #cbpi.app.logger.info("LCDDisplay  - heater status (0=off, 1=on) %s" % (heater_status))
-    
-    #line1 the stepname
-    line1 = (u'%s' % (s.name,)).ljust(20)[:20]
-    
-    #line2 when steptimer is runnig show remaining time and kettlename
-    if s.timer_end is not None:
-        time_remaining = time.strftime(u"%H:%M:%S", time.gmtime(s.timer_end - time.time()))
-        line2 = ((u"%s %s" % ((cbpi.cache.get("kettle")[id1].name).ljust(12)[:11],time_remaining)).ljust(20)[:20])
-    else:
-        line2 = ((u'%s' % (cbpi.cache.get("kettle")[id1].name)).ljust(20)[:20])
 
-    line3 = (u"Targ. Temp:%6.2f%s" % (float(cbpi.cache.get("kettle")[id1].target_temp),(u"°C"))).ljust(20)[:20]
-    line4 = (u"Curr. Temp:%6.2f%s" % (float(current_sensor_value_id1),(u"°C"))).ljust(20)[:20]
+    line1 = (u"Targ. Temp:%6.2f%s" % (float(cbpi.cache.get("kettle")[id1].target_temp),(u"°C"))).ljust(20)[:20]
+    line2 = (u"Curr. Temp:%6.2f%s" % (float(current_sensor_value_id1),(u"°C"))).ljust(20)[:20]
     
     lcd.cursor_pos = (0, 0)
     lcd.write_string(line1)
@@ -282,14 +272,19 @@ def is_fermenter_step_running():
             pass
 
 def show_standby(ipdet):
+    s = cbpi.cache.get("active_step")
+
+    #read the current temperature of kettle with id1 from parameters
+    current_sensor_value_id1 = (cbpi.get_sensor_value(int(cbpi.cache.get("kettle").get(id1).sensor)))
+
+    line1 = (u"Targ. Temp:%6.2f%s" % (float(cbpi.cache.get("kettle")[id1].target_temp),(u"°C"))).ljust(20)[:20]
+    line2 = (u"Curr. Temp:%6.2f%s" % (float(current_sensor_value_id1),(u"°C"))).ljust(20)[:20]
+
+
     lcd.cursor_pos = (0, 0)
-    lcd.write_string((u"CraftBeerPi %s" % cbpi_version).ljust(20))
+    lcd.write_string(line1)
     lcd.cursor_pos = (1, 0)
-    lcd.write_string((u"%s" % (cbpi.get_config_parameter("brewery_name","No Brewery"))).ljust(20)[:20])
-    lcd.cursor_pos =(2, 0)
-    lcd.write_string((u"IP: %s" % ipdet).ljust(20)[:20])
-    lcd.cursor_pos = (3, 0)
-    lcd.write_string((strftime(u"%Y-%m-%d %H:%M:%S", time.localtime())).ljust(20))
+    lcd.write_string(line2)
 pass   
 
 def interval(fermentername, seconds):
